@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:collection/collection.dart' show IterableExtension;
 import 'package:equatable/equatable.dart';
@@ -33,13 +32,6 @@ class PhoneNumber extends Equatable {
   /// Country [isoCode] of the phone number
   final String? isoCode;
 
-  /// [_hash] is used to compare instances of [PhoneNumber] object.
-  final int _hash;
-
-  /// Returns an integer generated after the object was initialised.
-  /// Used to compare different instances of [PhoneNumber]
-  int get hash => _hash;
-
   @override
   List<Object?> get props => [phoneNumber, isoCode, dialCode];
 
@@ -47,24 +39,36 @@ class PhoneNumber extends Equatable {
     this.phoneNumber,
     this.dialCode,
     this.isoCode,
-  }) : _hash = 1000 + Random().nextInt(99999 - 1000);
+  });
 
   @override
   String toString() {
     return 'PhoneNumber(phoneNumber: $phoneNumber, dialCode: $dialCode, isoCode: $isoCode)';
   }
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      super == other &&
+          other is PhoneNumber &&
+          runtimeType == other.runtimeType &&
+          phoneNumber == other.phoneNumber &&
+          dialCode == other.dialCode &&
+          isoCode == other.isoCode;
+
+  @override
+  int get hashCode => super.hashCode ^ phoneNumber.hashCode ^ dialCode.hashCode ^ isoCode.hashCode;
+
   /// Returns [PhoneNumber] which contains region information about
   /// the [phoneNumber] and [isoCode] passed.
-  static Future<PhoneNumber> getRegionInfoFromPhoneNumber(
+  static PhoneNumber getRegionInfoFromPhoneNumber(
     String phoneNumber, [
     String isoCode = '',
-  ]) async {
-    RegionInfo regionInfo = await PhoneNumberUtil.getRegionInfo(
-        phoneNumber: phoneNumber, isoCode: isoCode);
+  ]) {
+    RegionInfo regionInfo =
+        PhoneNumberUtil.getRegionInfo(phoneNumber: phoneNumber, isoCode: isoCode);
 
-    String? internationalPhoneNumber =
-        await PhoneNumberUtil.normalizePhoneNumber(
+    String? internationalPhoneNumber = PhoneNumberUtil.normalizePhoneNumber(
       phoneNumber: phoneNumber,
       isoCode: regionInfo.isoCode ?? isoCode,
     );
@@ -77,13 +81,13 @@ class PhoneNumber extends Equatable {
   }
 
   /// Accepts a [PhoneNumber] object and returns a formatted phone number String
-  static Future<String> getParsableNumber(PhoneNumber phoneNumber) async {
+  static String getParsableNumber(PhoneNumber phoneNumber) {
     if (phoneNumber.isoCode != null) {
-      PhoneNumber number = await getRegionInfoFromPhoneNumber(
+      PhoneNumber number = getRegionInfoFromPhoneNumber(
         phoneNumber.phoneNumber!,
         phoneNumber.isoCode!,
       );
-      String? formattedNumber = await PhoneNumberUtil.formatAsYouType(
+      String? formattedNumber = PhoneNumberUtil.formatAsYouType(
         phoneNumber: number.phoneNumber!,
         isoCode: number.isoCode!,
       );
@@ -107,8 +111,8 @@ class PhoneNumber extends Equatable {
   static String? getISO2CodeByPrefix(String prefix) {
     if (prefix.isNotEmpty) {
       prefix = prefix.startsWith('+') ? prefix : '+$prefix';
-      var country = Countries.countryList
-          .firstWhereOrNull((country) => country['dial_code'] == prefix);
+      var country =
+          Countries.countryList.firstWhereOrNull((country) => country['dial_code'] == prefix);
       if (country != null && country['alpha_2_code'] != null) {
         return country['alpha_2_code'];
       }
@@ -118,10 +122,9 @@ class PhoneNumber extends Equatable {
 
   /// Returns [PhoneNumberType] which is the type of phone number
   /// Accepts [phoneNumber] and [isoCode] and r
-  static Future<PhoneNumberType> getPhoneNumberType(
-      String phoneNumber, String isoCode) async {
-    PhoneNumberType type = await PhoneNumberUtil.getNumberType(
-        phoneNumber: phoneNumber, isoCode: isoCode);
+  static Future<PhoneNumberType> getPhoneNumberType(String phoneNumber, String isoCode) async {
+    PhoneNumberType type =
+        await PhoneNumberUtil.getNumberType(phoneNumber: phoneNumber, isoCode: isoCode);
 
     return type;
   }

@@ -7,33 +7,33 @@ class PhoneNumberUtil {
   /// [isValidNumber] checks if a [phoneNumber] is valid.
   /// Accepts [phoneNumber] and [isoCode]
   /// Returns [Future<bool>].
-  static Future<bool?> isValidNumber(
-      {required String phoneNumber, required String isoCode}) async {
+  static bool isValidNumber({required String phoneNumber, required String isoCode}) {
     if (phoneNumber.length < 2) {
       return false;
     }
+
     final number = phoneUtil.parse(phoneNumber, isoCode.toUpperCase());
+
     return phoneUtil.isValidNumber(number);
   }
 
   /// [normalizePhoneNumber] normalizes a string of characters representing a phone number
   /// Accepts [phoneNumber] and [isoCode]
   /// Returns [Future<String>]
-  static Future<String?> normalizePhoneNumber(
-      {required String phoneNumber, required String isoCode}) async {
+  static String? normalizePhoneNumber({required String phoneNumber, required String isoCode}) {
     final number = phoneUtil.parse(phoneNumber, isoCode.toUpperCase());
+
     return phoneUtil.format(number, p.PhoneNumberFormat.e164);
   }
 
   /// Accepts [phoneNumber] and [isoCode]
   /// Returns [Future<RegionInfo>] of all information available about the [phoneNumber]
-  static Future<RegionInfo> getRegionInfo(
-      {required String phoneNumber, required String isoCode}) async {
+  static RegionInfo getRegionInfo({required String phoneNumber, required String isoCode}) {
     final number = phoneUtil.parse(phoneNumber, isoCode.toUpperCase());
     final regionCode = phoneUtil.getRegionCodeForNumber(number);
     final countryCode = number.countryCode.toString();
-    final formattedNumber =
-        phoneUtil.format(number, p.PhoneNumberFormat.national);
+    final formattedNumber = phoneUtil.format(number, p.PhoneNumberFormat.national);
+
     return RegionInfo(
       regionPrefix: countryCode,
       isoCode: regionCode,
@@ -43,10 +43,9 @@ class PhoneNumberUtil {
 
   /// Accepts [phoneNumber] and [isoCode]
   /// Returns [Future<PhoneNumberType>] type of phone number
-  static Future<PhoneNumberType> getNumberType(
-      {required String phoneNumber, required String isoCode}) async {
-    final p.PhoneNumberType type = phoneUtil
-        .getNumberType(phoneUtil.parse(phoneNumber, isoCode.toUpperCase()));
+  static PhoneNumberType getNumberType({required String phoneNumber, required String isoCode}) {
+    final p.PhoneNumberType type =
+        phoneUtil.getNumberType(phoneUtil.parse(phoneNumber, isoCode.toUpperCase()));
 
     return PhoneNumberTypeUtil.getType(type.index);
   }
@@ -54,10 +53,10 @@ class PhoneNumberUtil {
   /// [formatAsYouType] uses Google's libphonenumber input format as you type.
   /// Accepts [phoneNumber] and [isoCode]
   /// Returns [Future<String>]
-  static Future<String?> formatAsYouType(
-      {required String phoneNumber, required String isoCode}) async {
+  static String? formatAsYouType({required String phoneNumber, required String isoCode}) {
     final asYouTypeFormatter = phoneUtil.getAsYouTypeFormatter(isoCode);
     String? result;
+
     for (int i = 0; i < phoneNumber.length; i++) {
       result = asYouTypeFormatter.inputDigit(phoneNumber[i]);
     }
