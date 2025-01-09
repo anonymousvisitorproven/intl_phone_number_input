@@ -428,9 +428,6 @@ class _InputWidgetView extends WidgetView<InternationalPhoneNumberInput, _InputW
             ? AsYouTypeFormatter(
                 isoCode: countryCode,
                 dialCode: dialCode,
-                onInputFormatted: (TextEditingValue value) {
-                  state.controller.value = value;
-                },
               )
             : FilteringTextInputFormatter.digitsOnly,
       ],

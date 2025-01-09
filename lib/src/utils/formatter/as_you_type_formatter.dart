@@ -3,8 +3,6 @@ import 'dart:math';
 import 'package:flutter/services.dart';
 import 'package:intl_phone_number_input/src/utils/phone_number/phone_number_util.dart';
 
-typedef OnInputFormatted<T> = void Function(T value);
-
 /// [AsYouTypeFormatter] is a custom formatter that extends [TextInputFormatter]
 /// which provides as you type validation and formatting for phone number inputted.
 class AsYouTypeFormatter extends TextInputFormatter {
@@ -22,11 +20,7 @@ class AsYouTypeFormatter extends TextInputFormatter {
   /// The [dialCode] of the [Country] formatting the phone number to
   final String dialCode;
 
-  /// [onInputFormatted] is a callback that passes the formatted phone number
-  final OnInputFormatted<TextEditingValue> onInputFormatted;
-
-  AsYouTypeFormatter(
-      {required this.isoCode, required this.dialCode, required this.onInputFormatted});
+  AsYouTypeFormatter({required this.isoCode, required this.dialCode});
 
   @override
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
@@ -86,11 +80,9 @@ class AsYouTypeFormatter extends TextInputFormatter {
 
       newCursorPosition = min(max(newCursorPosition, 0), parsedText.length);
 
-      this.onInputFormatted(
-        TextEditingValue(
-          text: parsedText,
-          selection: TextSelection.collapsed(offset: newCursorPosition),
-        ),
+      return TextEditingValue(
+        text: parsedText,
+        selection: TextSelection.collapsed(offset: newCursorPosition),
       );
     }
 

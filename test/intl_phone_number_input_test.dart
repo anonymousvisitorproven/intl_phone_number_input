@@ -11,14 +11,12 @@ void main() {
         AsYouTypeFormatter(
           isoCode: "",
           dialCode: "",
-          onInputFormatted: (_) {},
         );
       }, throwsAssertionError);
       expect(() {
         AsYouTypeFormatter(
           isoCode: "",
           dialCode: "",
-          onInputFormatted: (_) {},
         );
       }, throwsAssertionError);
     });
