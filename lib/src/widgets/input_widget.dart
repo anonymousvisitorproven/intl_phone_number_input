@@ -257,7 +257,7 @@ class _InputWidgetState extends State<InternationalPhoneNumberInput> {
       _isValid = false;
       widget.onInputValidated?.call(
         InputValidation(
-          isValid: !_isValid,
+          isValid: _isValid,
           isSetStateAllowed: isSetStateAllowed,
         ),
       );
@@ -275,7 +275,7 @@ class _InputWidgetState extends State<InternationalPhoneNumberInput> {
       _isValid = true;
       widget.onInputValidated?.call(
         InputValidation(
-          isValid: !_isValid,
+          isValid: _isValid,
           isSetStateAllowed: isSetStateAllowed,
         ),
       );
