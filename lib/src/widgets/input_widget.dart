@@ -204,6 +204,9 @@ class _InputWidgetState extends State<InternationalPhoneNumberInput> {
           widget.formatInput ? phoneNumber : phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
 
       phoneNumberControllerListener(isSetStateAllowed: isSetStateNeeded);
+    } else {
+      controller.text = localPhoneNumber;
+      phoneNumberControllerListener(isSetStateAllowed: isSetStateNeeded);
     }
   }
 
