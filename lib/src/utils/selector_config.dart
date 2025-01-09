@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:intl_phone_number_input/src/models/country_model.dart';
 import 'package:intl_phone_number_input/src/widgets/input_widget.dart';
 
@@ -24,9 +23,6 @@ class SelectorConfig {
   /// Sorting is disabled by default
   final CountryComparator? countryComparator;
 
-  /// [setSelectorButtonAsPrefixIcon], this sets/places the selector button inside the [TextField] as a prefixIcon.
-  final bool setSelectorButtonAsPrefixIcon;
-
   /// Space before the flag icon
   final double? leadingPadding;
 
@@ -41,7 +37,6 @@ class SelectorConfig {
     this.showFlags = true,
     this.useEmoji = false,
     this.countryComparator,
-    this.setSelectorButtonAsPrefixIcon = false,
     this.leadingPadding,
     this.trailingSpace = true,
     this.useBottomSheetSafeArea = false,
