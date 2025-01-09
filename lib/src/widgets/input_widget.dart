@@ -33,11 +33,21 @@ enum PhoneInputSelectorType { DROPDOWN, BOTTOM_SHEET, DIALOG }
 ///
 /// [countries] accepts list of string on Country isoCode, if specified filters
 /// available countries to match the [countries] specified.
+class InputValidation {
+  final isValid;
+  final isSetStateAllowed;
+
+  InputValidation({
+    required this.isValid,
+    required this.isSetStateAllowed,
+  });
+}
+
 class InternationalPhoneNumberInput extends StatefulWidget {
   final SelectorConfig selectorConfig;
 
   final ValueChanged<PhoneNumber>? onInputChanged;
-  final ValueChanged<bool>? onInputValidated;
+  final ValueChanged<InputValidation>? onInputValidated;
 
   final VoidCallback? onSubmit;
   final ValueChanged<String>? onFieldSubmitted;
@@ -137,13 +147,13 @@ class _InputWidgetState extends State<InternationalPhoneNumberInput> {
 
   Country? country;
   List<Country> countries = [];
-  bool isNotValid = true;
+  bool _isValid = false;
 
   @override
   void initState() {
     super.initState();
     loadCountries();
-    initialiseWidget();
+    initialiseWidget(isSetStateNeeded: false);
   }
 
   void dispose() {
@@ -164,13 +174,13 @@ class _InputWidgetState extends State<InternationalPhoneNumberInput> {
       if (country?.alpha2Code != widget.initialValue?.isoCode) {
         loadCountries();
       }
-      initialiseWidget();
+      initialiseWidget(isSetStateNeeded: false);
     }
     super.didUpdateWidget(oldWidget);
   }
 
   /// [initialiseWidget] sets initial values of the widget
-  void initialiseWidget() {
+  void initialiseWidget({required bool isSetStateNeeded}) {
     var localInitialValue = widget.initialValue;
 
     if (localInitialValue == null) {
@@ -193,7 +203,7 @@ class _InputWidgetState extends State<InternationalPhoneNumberInput> {
       controller.text =
           widget.formatInput ? phoneNumber : phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
 
-      phoneNumberControllerListener();
+      phoneNumberControllerListener(isSetStateAllowed: isSetStateNeeded);
     }
   }
 
@@ -221,7 +231,7 @@ class _InputWidgetState extends State<InternationalPhoneNumberInput> {
 
   /// Listener that validates changes from the widget, returns a bool to
   /// the `ValueCallback` [widget.onInputValidated]
-  void phoneNumberControllerListener() {
+  void phoneNumberControllerListener({required bool isSetStateAllowed}) {
     if (!mounted) {
       return;
     }
@@ -244,8 +254,13 @@ class _InputWidgetState extends State<InternationalPhoneNumberInput> {
         );
       }
 
-      widget.onInputValidated?.call(false);
-      isNotValid = true;
+      _isValid = false;
+      widget.onInputValidated?.call(
+        InputValidation(
+          isValid: !_isValid,
+          isSetStateAllowed: isSetStateAllowed,
+        ),
+      );
     } else {
       if (localOnInputChanged != null) {
         localOnInputChanged(
@@ -257,8 +272,13 @@ class _InputWidgetState extends State<InternationalPhoneNumberInput> {
         );
       }
 
-      widget.onInputValidated?.call(true);
-      isNotValid = false;
+      _isValid = true;
+      widget.onInputValidated?.call(
+        InputValidation(
+          isValid: !_isValid,
+          isSetStateAllowed: isSetStateAllowed,
+        ),
+      );
     }
   }
 
@@ -307,16 +327,22 @@ class _InputWidgetState extends State<InternationalPhoneNumberInput> {
 
   /// Validate the phone number when a change occurs
   void onChanged(String value) {
-    phoneNumberControllerListener();
+    phoneNumberControllerListener(isSetStateAllowed: true);
   }
 
   /// Validate and returns a validation error when [FormState] validate is called.
   ///
   /// Also updates [selectorButtonBottomPadding]
   String? validator(String? value) {
-    bool isValid = this.isNotValid && (value != null && value.isNotEmpty || !widget.ignoreBlank);
+    if (_isValid) {
+      return null;
+    }
 
-    return isValid ? widget.errorMessage : null;
+    if ((value == null || value.isEmpty) && widget.ignoreBlank) {
+      return null;
+    } else {
+      return widget.errorMessage;
+    }
   }
 
   /// Changes Selector Button Country and Validate Change.
@@ -324,7 +350,7 @@ class _InputWidgetState extends State<InternationalPhoneNumberInput> {
     setState(() {
       this.country = country;
     });
-    phoneNumberControllerListener();
+    phoneNumberControllerListener(isSetStateAllowed: true);
   }
 
   void _phoneNumberSaved() {
@@ -336,8 +362,8 @@ class _InputWidgetState extends State<InternationalPhoneNumberInput> {
       widget.onSaved?.call(
         PhoneNumber(
           phoneNumber: phoneNumber,
-          isoCode: this.country?.alpha2Code,
-          dialCode: this.country?.dialCode,
+          isoCode: country?.alpha2Code,
+          dialCode: country?.dialCode,
         ),
       );
     }
